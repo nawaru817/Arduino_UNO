@@ -1,20 +1,31 @@
 #include<Servo.h>
 #include <IRremote.h>
+#include <avr/wdt.h>
 
-int RECV_PIN = 8;
+int RECV_PIN = 5;
 IRrecv irrecv(RECV_PIN);
 decode_results results;
 Servo servo;
 int state = 0;
 
 void setup(){
-  servo.attach(5);
+  servo.attach(2);
+  servo.write(0);
   Serial.begin(9600);
   irrecv.enableIRIn();
+  software_reset();
 }
 
 void loop() {
-  if (irrecv.decode(&results)){
+  }
+
+//リセット用
+void software_reset() {
+  wdt_disable();
+  wdt_enable(WDTO_8S);
+  Serial.print("リセットしました");
+  while (1) {
+      if (irrecv.decode(&results)){
       Serial.println(results.value, HEX);
       Serial.println("");
       irrecv.resume();
@@ -27,10 +38,11 @@ void loop() {
       state = 0;
     }
   }
+}
 
 void light(){
-  servo.write(0);
+  servo.write(33);
   delay(500);
-  servo.write(100);  
+  servo.write(0);  
   delay(500);
 }
