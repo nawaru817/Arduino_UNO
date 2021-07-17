@@ -13,19 +13,12 @@ void setup(){
   servo.write(0);
   Serial.begin(9600);
   irrecv.enableIRIn();
-  software_reset();
+  Serial.print("再開");
 }
 
-void loop() {
-  }
 
-//リセット用
-void software_reset() {
-  wdt_disable();
-  wdt_enable(WDTO_8S);
-  Serial.print("リセットしました");
-  while (1) {
-      if (irrecv.decode(&results)){
+void loop() {
+  if (irrecv.decode(&results)){
       Serial.println(results.value, HEX);
       Serial.println("");
       irrecv.resume();
@@ -36,9 +29,16 @@ void software_reset() {
   if (state == 1){
       light();
       state = 0;
+      software_reset();
     }
   }
+
+void software_reset() {
+  wdt_disable();
+  wdt_enable(WDTO_15MS);
+  Serial.print("リセットしました");
 }
+
 
 void light(){
   servo.write(33);
